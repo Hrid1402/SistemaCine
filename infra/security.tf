@@ -1,3 +1,4 @@
+//Key Management Service
 resource "aws_kms_key" "main" {
   description             = "Llave KMS para cifrar RDS, DynamoDB, S3 y Secrets Manager"
   deletion_window_in_days = 7
@@ -13,6 +14,7 @@ resource "aws_kms_alias" "main" {
   target_key_id = aws_kms_key.main.key_id
 }
 
+//Secrets Manager
 resource "aws_secretsmanager_secret" "db_secret" {
   name                    = "${var.project_name}-db-credentials"
   description             = "Credenciales de conexion hacia las bases de datos"

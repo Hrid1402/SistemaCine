@@ -9,6 +9,7 @@ resource "aws_lambda_layer_version" "psycopg2_layer" {
   filename            = "${path.module}/../backend/layers/psycopg2_layer.zip"
   layer_name          = "psycopg2-python311"
   compatible_runtimes = ["python3.11"]
+  source_code_hash    = filebase64sha256("${path.module}/../backend/layers/psycopg2_layer.zip")
 }
 
 resource "aws_lambda_function" "init_db" {
@@ -19,6 +20,8 @@ resource "aws_lambda_function" "init_db" {
   runtime          = "python3.11"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   layers           = [aws_lambda_layer_version.psycopg2_layer.arn]
+  timeout          = 30
+  memory_size      = 256
 
   environment {
     variables = {
@@ -47,6 +50,8 @@ resource "aws_lambda_function" "get_billboard" {
   runtime          = "python3.11"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   layers           = [aws_lambda_layer_version.psycopg2_layer.arn]
+  timeout          = 15
+  memory_size      = 256
 
   environment {
     variables = {
@@ -63,6 +68,8 @@ resource "aws_lambda_function" "book_seat" {
   handler          = "book_seat.lambda_handler"
   runtime          = "python3.11"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+  timeout          = 10
+  memory_size      = 128
 
   environment {
     variables = {
@@ -79,6 +86,8 @@ resource "aws_lambda_function" "process_payment" {
   runtime          = "python3.11"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   layers           = [aws_lambda_layer_version.psycopg2_layer.arn]
+  timeout          = 15
+  memory_size      = 256
 
   environment {
     variables = {

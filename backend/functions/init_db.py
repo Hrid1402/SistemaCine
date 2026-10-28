@@ -18,7 +18,8 @@ def lambda_handler(event, context):
         database=secret['dbname'],
         user=secret['username'],
         password=secret['password'],
-        port=secret['port']
+        port=secret.get('port', 5432),
+        connect_timeout=10
     )
     cursor = conn.cursor()
 

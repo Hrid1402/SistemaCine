@@ -17,7 +17,14 @@ def lambda_handler(event, context):
     secret = json.loads(boto3.client('secretsmanager', region_name=os.environ['AWS_REGION']).get_secret_value(SecretId=os.environ['DB_SECRET_NAME'])['SecretString'])
     
     # Conecta a la base de datos relacional PostgreSQL en RDS
-    conn = psycopg2.connect(host=secret['host'], database=secret['dbname'], user=secret['username'], password=secret['password'])
+    conn = psycopg2.connect(
+        host=secret['host'],
+        database=secret['dbname'],
+        user=secret['username'],
+        password=secret['password'],
+        port=secret.get('port', 5432),
+        connect_timeout=5
+    )
     cursor = conn.cursor()
     
     try:

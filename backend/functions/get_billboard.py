@@ -15,7 +15,14 @@ def lambda_handler(event, context):
     secret = json.loads(client.get_secret_value(SecretId=secret_name)['SecretString'])
 
     # Conecta a la base de datos RDS PostgreSQL
-    conn = psycopg2.connect(host=secret['host'], database=secret['dbname'], user=secret['username'], password=secret['password'])
+    conn = psycopg2.connect(
+        host=secret['host'],
+        database=secret['dbname'],
+        user=secret['username'],
+        password=secret['password'],
+        port=secret.get('port', 5432),
+        connect_timeout=5
+    )
     cursor = conn.cursor()
     
     # Consulta todas las películas registradas en la cartelera

@@ -19,6 +19,24 @@ resource "aws_lambda_function" "init_db" {
   runtime          = "python3.11"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   layers           = [aws_lambda_layer_version.psycopg2_layer.arn]
+
+  environment {
+    variables = {
+      DB_SECRET_NAME = aws_secretsmanager_secret.db_secret.name
+    }
+  }
+}
+
+# Inicializacion automatica de la base de datos al desplegar con Terraform
+resource "aws_lambda_invocation" "init_db" {
+  function_name = aws_lambda_function.init_db.function_name
+  input         = jsonencode({})
+
+  depends_on = [
+    aws_lambda_function.init_db,
+    aws_db_instance.postgres,
+    aws_secretsmanager_secret_version.db_secret_val
+  ]
 }
 
 resource "aws_lambda_function" "get_billboard" {
@@ -29,6 +47,13 @@ resource "aws_lambda_function" "get_billboard" {
   runtime          = "python3.11"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   layers           = [aws_lambda_layer_version.psycopg2_layer.arn]
+
+  environment {
+    variables = {
+      DB_SECRET_NAME = aws_secretsmanager_secret.db_secret.name
+      S3_BUCKET_NAME = aws_s3_bucket.posters.id
+    }
+  }
 }
 
 resource "aws_lambda_function" "book_seat" {
@@ -38,6 +63,12 @@ resource "aws_lambda_function" "book_seat" {
   handler          = "book_seat.lambda_handler"
   runtime          = "python3.11"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE_NAME = aws_dynamodb_table.seats.name
+    }
+  }
 }
 
 resource "aws_lambda_function" "process_payment" {
@@ -48,4 +79,10 @@ resource "aws_lambda_function" "process_payment" {
   runtime          = "python3.11"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   layers           = [aws_lambda_layer_version.psycopg2_layer.arn]
+
+  environment {
+    variables = {
+      DB_SECRET_NAME = aws_secretsmanager_secret.db_secret.name
+    }
+  }
 }

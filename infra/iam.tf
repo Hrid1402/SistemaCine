@@ -1,4 +1,4 @@
-# Rol IAM para la función init_db (Permisos básicos de ejecución en CloudWatch)
+# Rol IAM para la función init_db (Permisos de CloudWatch y lectura de secretos de BD)
 resource "aws_iam_role" "lambda_init_db" {
   name = "lambda-init-db-role"
   assume_role_policy = jsonencode({
@@ -14,6 +14,11 @@ resource "aws_iam_role" "lambda_init_db" {
 resource "aws_iam_role_policy_attachment" "init_db_basic" {
   role       = aws_iam_role.lambda_init_db.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "init_db_secrets" {
+  role       = aws_iam_role.lambda_init_db.name
+  policy_arn = aws_iam_policy.db_secrets_policy.arn
 }
 
 # Rol IAM para la función get_billboard
@@ -32,6 +37,16 @@ resource "aws_iam_role" "lambda_get_billboard" {
 resource "aws_iam_role_policy_attachment" "get_billboard_basic" {
   role       = aws_iam_role.lambda_get_billboard.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "get_billboard_secrets" {
+  role       = aws_iam_role.lambda_get_billboard.name
+  policy_arn = aws_iam_policy.db_secrets_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "get_billboard_s3" {
+  role       = aws_iam_role.lambda_get_billboard.name
+  policy_arn = aws_iam_policy.s3_read_policy.arn
 }
 
 # Rol IAM para la función book_seat
@@ -56,11 +71,18 @@ resource "aws_iam_policy" "dynamodb_put_policy" {
   name = "lambda-dynamodb-put-policy"
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Effect   = "Allow"
-      Action   = ["dynamodb:PutItem", "dynamodb:GetItem"]
-      Resource = "arn:aws:dynamodb:*:*:table/CineSeats*"
-    }]
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["dynamodb:PutItem", "dynamodb:GetItem"]
+        Resource = aws_dynamodb_table.seats.arn
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["kms:Decrypt", "kms:GenerateDataKey"]
+        Resource = aws_kms_key.main.arn
+      }
+    ]
   })
 }
 
@@ -85,4 +107,51 @@ resource "aws_iam_role" "lambda_process_payment" {
 resource "aws_iam_role_policy_attachment" "process_payment_basic" {
   role       = aws_iam_role.lambda_process_payment.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "process_payment_secrets" {
+  role       = aws_iam_role.lambda_process_payment.name
+  policy_arn = aws_iam_policy.db_secrets_policy.arn
+}
+
+# Política compartida para lectura de Secrets Manager y descifrado KMS
+resource "aws_iam_policy" "db_secrets_policy" {
+  name        = "${var.project_name}-db-secrets-policy"
+  description = "Permite a las Lambdas leer credenciales de Secrets Manager y descifrar con KMS"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["secretsmanager:GetSecretValue"]
+        Resource = aws_secretsmanager_secret.db_secret.arn
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["kms:Decrypt", "kms:DescribeKey"]
+        Resource = aws_kms_key.main.arn
+      }
+    ]
+  })
+}
+
+# Política para lectura de posters en S3 y descifrado KMS
+resource "aws_iam_policy" "s3_read_policy" {
+  name        = "${var.project_name}-s3-read-policy"
+  description = "Permite a la Lambda leer posters en S3 y descifrar con KMS"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["s3:GetObject"]
+        Resource = "${aws_s3_bucket.posters.arn}/*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["kms:Decrypt"]
+        Resource = aws_kms_key.main.arn
+      }
+    ]
+  })
 }

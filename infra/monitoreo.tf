@@ -1,4 +1,3 @@
-# 9. Grupos de logs de las funciones Lambda (retencion de 14 dias).
 resource "aws_cloudwatch_log_group" "cartelera" {
   name              = "/aws/lambda/${aws_lambda_function.get_billboard.function_name}"
   retention_in_days = 14
@@ -19,7 +18,6 @@ resource "aws_cloudwatch_log_group" "init_db" {
   retention_in_days = 14
 }
 
-# 10. Una alarma cuando las 3 Lambdas de la API acumulen 1 o mas errores en 5 minutos.
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   alarm_name          = "${var.project_name}-lambda-errors"
   alarm_description   = "Errores acumulados en las Lambdas de cartelera, reserva y pago"
@@ -78,7 +76,6 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   }
 }
 
-# 11. Dashboard con 2 graficas: invocaciones y errores por funcion Lambda.
 resource "aws_cloudwatch_dashboard" "cine_dashboard" {
   dashboard_name = "${var.project_name}-lambda-dashboard"
 
@@ -128,7 +125,6 @@ resource "aws_cloudwatch_dashboard" "cine_dashboard" {
   })
 }
 
-# 12. Outputs para consultar valores de AWS y configurar Postman.
 output "api_gateway_url" {
   description = "URL base del HTTP API de CinemaSpot"
   value       = aws_apigatewayv2_stage.default.invoke_url

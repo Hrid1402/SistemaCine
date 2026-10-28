@@ -1,4 +1,3 @@
-# 1. Directorio de usuarios de CinemaSpot.
 resource "aws_cognito_user_pool" "cine_users" {
   name                     = "${var.project_name}-users"
   username_attributes      = ["email"]
@@ -17,7 +16,6 @@ resource "aws_cognito_user_pool" "cine_users" {
   }
 }
 
-# 2. Cliente publico (sin secreto) para autenticar usuarios desde Postman.
 # El access token y el ID token caducan despues de 60 minutos.
 resource "aws_cognito_user_pool_client" "cine_app" {
   name         = "${var.project_name}-app"
@@ -42,13 +40,11 @@ resource "aws_cognito_user_pool_client" "cine_app" {
   }
 }
 
-# 3. API HTTP (API Gateway v2).
 resource "aws_apigatewayv2_api" "cine_api" {
   name          = "${var.project_name}-http-api"
   protocol_type = "HTTP"
 }
 
-# 4. Verificacion JWT de Cognito: emisor y app client permitidos.
 resource "aws_apigatewayv2_authorizer" "cognito_jwt" {
   api_id           = aws_apigatewayv2_api.cine_api.id
   name             = "${var.project_name}-cognito-jwt"
@@ -61,14 +57,12 @@ resource "aws_apigatewayv2_authorizer" "cognito_jwt" {
   }
 }
 
-# 5. Publicacion automatica en la etapa default.
 resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.cine_api.id
   name        = "$default"
   auto_deploy = true
 }
 
-# 6. Integraciones Lambda (proxy con payload HTTP API 2.0).
 resource "aws_apigatewayv2_integration" "cartelera" {
   api_id                 = aws_apigatewayv2_api.cine_api.id
   integration_type       = "AWS_PROXY"
@@ -90,7 +84,6 @@ resource "aws_apigatewayv2_integration" "pagar" {
   payload_format_version = "2.0"
 }
 
-# 7. Cartelera publica; reserva y pago protegidos por Cognito JWT.
 resource "aws_apigatewayv2_route" "cartelera" {
   api_id             = aws_apigatewayv2_api.cine_api.id
   route_key          = "GET /cartelera"
@@ -116,7 +109,6 @@ resource "aws_apigatewayv2_route" "pagar" {
   authorization_scopes = ["aws.cognito.signin.user.admin"]
 }
 
-# 8. Permisos para que esta API invoque cada Lambda en su ruta.
 resource "aws_lambda_permission" "api_cartelera" {
   statement_id  = "AllowCinemaApiCartelera"
   action        = "lambda:InvokeFunction"

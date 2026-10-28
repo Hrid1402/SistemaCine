@@ -1,23 +1,16 @@
 # CinemaSpot
 
 ## Arquitectura en AWS
-Se utilizará diferentes servicios de AWS para garantizar disponibilidad, escalabilidad y seguridad.
 
-### Servicios utilizados
-- **Amazon Route 53:** gestión del dominio y direccionamiento de usuarios.
-- **AWS WAF:** protección de la aplicación frente a tráfico malicioso.
-- **Amazon CloudFront:** distribución rápida del contenido mediante CDN.
-- **Amazon S3:** almacenamiento de contenido estático como imágenes, posters y archivos web.
-- **Amazon API Gateway:** comunicación entre el cliente y los servicios del sistema.
-- **Amazon Cognito:** autenticación y gestión de usuarios.
-- **AWS Lambda:** procesamiento de operaciones del sistema.
-  - Consultar cartelera.
-  - Reservar asiento.
-- **Amazon DynamoDB:** almacenamiento de información que requiere consultas rápidas.
-- **Amazon SQS:** gestión de tareas y operaciones de manera asíncrona.
-- **Amazon RDS Proxy:** administración de conexiones hacia la base de datos.
-- **Amazon RDS:** almacenamiento de información estructurada como usuarios, películas, funciones, reservas y pagos.
-- **AWS Backup:** respaldo de las bases de datos.
-- **Amazon QuickSight:** visualización de información y generación de reportes.
-- **Amazon SNS:** envío de notificaciones a los clientes.
+El sistema utiliza servicios de AWS diseñados para garantizar alta disponibilidad, seguridad bajo el principio de mínimo privilegio y un rendimiento óptimo, se consideró para el PMV:
+
+* **Amazon S3**: Almacenamiento privado de contenido estático (pósters e imágenes de películas).
+* **Amazon API Gateway**: Puerta de entrada HTTP y enrutamiento hacia las funciones Lambda.
+* **Amazon Cognito**: Autenticación de usuarios y emisión de tokens JWT (60 minutos de expiración).
+* **AWS Lambda**: Procesamiento serverless para la lógica de negocio (cartelera, reservas y pagos).
+* **Amazon DynamoDB**: Almacenamiento NoSQL rápido para el control y bloqueo de asientos.
+* **Amazon RDS (PostgreSQL)**: Base de datos relacional para películas, funciones y registro de pagos.
+* **AWS KMS & Secrets Manager**: Cifrado de datos en reposo y gestión segura de credenciales.
+* **Amazon CloudWatch**: Monitoreo con métricas, grupos de logs, alarmas y dashboard centralizado.
+* **AWS Identity and Access Management (IAM)**: Roles y políticas de mínimo privilegio.
 

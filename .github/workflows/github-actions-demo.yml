@@ -3,7 +3,7 @@ name: Github Actions Demo
 run-name: ${{ github.actor}} esta ejecutando un pipeline
 on: [push]
 jobs:
-  Saludar-Hello-World:
+  Info-del-repositorio:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Este job ha sido ejecutado ${{github.event_name}}"
@@ -16,7 +16,7 @@ jobs:
 
       - name: Listar los archivos del repositorio
         run: |
-          ls -la
+          ls
           ls backend/functions
           ls infra
 

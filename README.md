@@ -14,3 +14,12 @@ El sistema utiliza servicios de AWS diseñados para garantizar alta disponibilid
 * **Amazon CloudWatch**: Monitoreo con métricas, grupos de logs, alarmas y dashboard centralizado.
 * **AWS Identity and Access Management (IAM)**: Roles y políticas de mínimo privilegio.
 
+## Endpoints de la API
+
+| Método | Ruta | Acceso | Descripción |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/cartelera` | Público | Consulta películas, salas, precios y asientos disponibles en tiempo real. |
+| `POST` | `/reservar` | Protegido (JWT) | Reserva atómicamente un asiento en DynamoDB para el usuario autenticado. |
+| `POST` | `/pagar` | Protegido (JWT) | Procesa el pago con idempotencia en PostgreSQL y confirma la reserva. |
+
+> **Autenticación:** Las rutas protegidas se validan mediante un **JWT Authorizer** nativo en API Gateway conectado al User Pool de **Amazon Cognito**. Los usuarios inician sesión directamente contra Cognito y envían su token en la cabecera `Authorization: Bearer <token>`.

@@ -49,6 +49,11 @@ resource "aws_iam_role_policy_attachment" "get_billboard_s3" {
   policy_arn = aws_iam_policy.s3_read_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "get_billboard_dynamo" {
+  role       = aws_iam_role.lambda_get_billboard.name
+  policy_arn = aws_iam_policy.dynamodb_put_policy.arn
+}
+
 # Rol IAM para la función book_seat
 resource "aws_iam_role" "lambda_book_seat" {
   name = "lambda-book-seat-role"
@@ -67,28 +72,14 @@ resource "aws_iam_role_policy_attachment" "book_seat_basic" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-resource "aws_iam_policy" "dynamodb_put_policy" {
-  name = "lambda-dynamodb-put-policy"
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect   = "Allow"
-        Action   = ["dynamodb:PutItem", "dynamodb:GetItem"]
-        Resource = aws_dynamodb_table.seats.arn
-      },
-      {
-        Effect   = "Allow"
-        Action   = ["kms:Decrypt", "kms:GenerateDataKey"]
-        Resource = aws_kms_key.main.arn
-      }
-    ]
-  })
-}
-
 resource "aws_iam_role_policy_attachment" "book_seat_dynamo" {
   role       = aws_iam_role.lambda_book_seat.name
   policy_arn = aws_iam_policy.dynamodb_put_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "book_seat_secrets" {
+  role       = aws_iam_role.lambda_book_seat.name
+  policy_arn = aws_iam_policy.db_secrets_policy.arn
 }
 
 # Rol IAM para la función process_payment
@@ -112,6 +103,31 @@ resource "aws_iam_role_policy_attachment" "process_payment_basic" {
 resource "aws_iam_role_policy_attachment" "process_payment_secrets" {
   role       = aws_iam_role.lambda_process_payment.name
   policy_arn = aws_iam_policy.db_secrets_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "process_payment_dynamo" {
+  role       = aws_iam_role.lambda_process_payment.name
+  policy_arn = aws_iam_policy.dynamodb_put_policy.arn
+}
+
+# Política compartida para DynamoDB (Crear, consultar y actualizar reservas)
+resource "aws_iam_policy" "dynamodb_put_policy" {
+  name = "lambda-dynamodb-put-policy"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["dynamodb:PutItem", "dynamodb:GetItem", "dynamodb:UpdateItem", "dynamodb:Query"]
+        Resource = aws_dynamodb_table.seats.arn
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["kms:Decrypt", "kms:GenerateDataKey"]
+        Resource = aws_kms_key.main.arn
+      }
+    ]
+  })
 }
 
 # Política compartida para lectura de Secrets Manager y descifrado KMS

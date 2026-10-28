@@ -35,6 +35,10 @@ resource "aws_lambda_invocation" "init_db" {
   function_name = aws_lambda_function.init_db.function_name
   input         = jsonencode({})
 
+  triggers = {
+    redeployment = data.archive_file.lambda_zip.output_base64sha256
+  }
+
   depends_on = [
     aws_lambda_function.init_db,
     aws_db_instance.postgres,
@@ -55,8 +59,9 @@ resource "aws_lambda_function" "get_billboard" {
 
   environment {
     variables = {
-      DB_SECRET_NAME = aws_secretsmanager_secret.db_secret.name
-      S3_BUCKET_NAME = aws_s3_bucket.posters.id
+      DB_SECRET_NAME      = aws_secretsmanager_secret.db_secret.name
+      S3_BUCKET_NAME      = aws_s3_bucket.posters.id
+      DYNAMODB_TABLE_NAME = aws_dynamodb_table.seats.name
     }
   }
 }
@@ -68,12 +73,14 @@ resource "aws_lambda_function" "book_seat" {
   handler          = "book_seat.lambda_handler"
   runtime          = "python3.11"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
-  timeout          = 10
-  memory_size      = 128
+  layers           = [aws_lambda_layer_version.psycopg2_layer.arn]
+  timeout          = 15
+  memory_size      = 256
 
   environment {
     variables = {
       DYNAMODB_TABLE_NAME = aws_dynamodb_table.seats.name
+      DB_SECRET_NAME      = aws_secretsmanager_secret.db_secret.name
     }
   }
 }
@@ -91,7 +98,8 @@ resource "aws_lambda_function" "process_payment" {
 
   environment {
     variables = {
-      DB_SECRET_NAME = aws_secretsmanager_secret.db_secret.name
+      DB_SECRET_NAME      = aws_secretsmanager_secret.db_secret.name
+      DYNAMODB_TABLE_NAME = aws_dynamodb_table.seats.name
     }
   }
 }

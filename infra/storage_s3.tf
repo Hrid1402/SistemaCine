@@ -24,6 +24,6 @@ resource "aws_s3_object" "sample_poster" {
   bucket       = aws_s3_bucket.posters.id
   key          = "posters/${each.value}"
   source       = "${path.module}/../assets/posters/${each.value}"
-  content_type = "image/jpeg"
+  content_type = endswith(each.value, ".png") ? "image/png" : "image/jpeg"
   etag         = filemd5("${path.module}/../assets/posters/${each.value}")
 }

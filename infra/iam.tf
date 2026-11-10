@@ -110,6 +110,29 @@ resource "aws_iam_role_policy_attachment" "process_payment_dynamo" {
   policy_arn = aws_iam_policy.dynamodb_put_policy.arn
 }
 
+# --- NUEVO: Rol IAM para la función manage_admin ---
+resource "aws_iam_role" "lambda_manage_admin" {
+  name = "lambda-manage-admin-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = { Service = "lambda.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "manage_admin_basic" {
+  role       = aws_iam_role.lambda_manage_admin.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "manage_admin_secrets" {
+  role       = aws_iam_role.lambda_manage_admin.name
+  policy_arn = aws_iam_policy.db_secrets_policy.arn
+}
+
 # Política compartida para DynamoDB (Crear, consultar y actualizar reservas)
 resource "aws_iam_policy" "dynamodb_put_policy" {
   name = "lambda-dynamodb-put-policy"

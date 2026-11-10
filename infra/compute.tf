@@ -103,3 +103,22 @@ resource "aws_lambda_function" "process_payment" {
     }
   }
 }
+
+# --- NUEVO: Función Lambda para Administración (manage_admin) ---
+resource "aws_lambda_function" "manage_admin" {
+  filename         = data.archive_file.lambda_zip.output_path
+  function_name    = "cine-manage-admin"
+  role             = aws_iam_role.lambda_manage_admin.arn
+  handler          = "manage_admin.lambda_handler"
+  runtime          = "python3.11"
+  source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+  layers           = [aws_lambda_layer_version.psycopg2_layer.arn]
+  timeout          = 15
+  memory_size      = 256
+
+  environment {
+    variables = {
+      DB_SECRET_NAME = aws_secretsmanager_secret.db_secret.name
+    }
+  }
+}

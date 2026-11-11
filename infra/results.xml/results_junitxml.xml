@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
-<testsuites disabled="0" errors="0" failures="61" tests="193" time="0.0">
-	<testsuite disabled="0" errors="0" failures="61" name="terraform scan" skipped="0" tests="193" time="0">
+<testsuites disabled="0" errors="0" failures="60" tests="193" time="0.0">
+	<testsuite disabled="0" errors="0" failures="60" name="terraform scan" skipped="0" tests="193" time="0">
 		<properties>
 			<property name="directory" value="['/tf']"/>
 			<property name="add_check" value="False"/>
@@ -141,6 +141,7 @@
 		<testcase name="[NONE][CKV_AWS_55] Ensure S3 bucket has ignore public ACLs enabled" classname="/storage_s3.tf.aws_s3_bucket_public_access_block.posters" file="/storage_s3.tf"/>
 		<testcase name="[NONE][CKV_AWS_53] Ensure S3 bucket has block public ACLS enabled" classname="/storage_s3.tf.aws_s3_bucket_public_access_block.posters" file="/storage_s3.tf"/>
 		<testcase name="[NONE][CKV_AWS_54] Ensure S3 bucket has block public policy enabled" classname="/storage_s3.tf.aws_s3_bucket_public_access_block.posters" file="/storage_s3.tf"/>
+		<testcase name="[NONE][CKV_AWS_21] Ensure all data stored in the S3 bucket have versioning enabled" classname="/storage_s3.tf.aws_s3_bucket.posters" file="/storage_s3.tf"/>
 		<testcase name="[NONE][CKV_AWS_19] Ensure all data stored in the S3 bucket is securely encrypted at rest" classname="/storage_s3.tf.aws_s3_bucket.posters" file="/storage_s3.tf"/>
 		<testcase name="[NONE][CKV_AWS_57] S3 Bucket has an ACL defined which allows public WRITE access." classname="/storage_s3.tf.aws_s3_bucket.posters" file="/storage_s3.tf"/>
 		<testcase name="[NONE][CKV_AWS_20] S3 Bucket has an ACL defined which allows public READ access." classname="/storage_s3.tf.aws_s3_bucket.posters" file="/storage_s3.tf"/>
@@ -155,20 +156,20 @@
 		<testcase name="[NONE][CKV2_AWS_56] Ensure AWS Managed IAMFullAccess IAM policy is not used." classname="/iam.tf.aws_iam_role_policy_attachment.process_payment_basic" file="/iam.tf"/>
 		<testcase name="[NONE][CKV2_AWS_56] Ensure AWS Managed IAMFullAccess IAM policy is not used." classname="/iam.tf.aws_iam_role.lambda_manage_admin" file="/iam.tf"/>
 		<testcase name="[NONE][CKV2_AWS_56] Ensure AWS Managed IAMFullAccess IAM policy is not used." classname="/iam.tf.aws_iam_role_policy_attachment.manage_admin_basic" file="/iam.tf"/>
-		<testcase name="[NONE][CKV_AWS_145] Ensure that S3 buckets are encrypted with KMS by default" classname="/storage_s3.tf.aws_s3_bucket.posters" file="/storage_s3.tf"/>
 		<testcase name="[NONE][CKV2_AWS_5] Ensure that Security Groups are attached to another resource" classname="/database_rds.tf.aws_security_group.rds_sg" file="/database_rds.tf"/>
 		<testcase name="[NONE][CKV2_AWS_77] Ensure AWS API Gateway Rest API attached WAFv2 WebACL is configured with AMR for Log4j Vulnerability" classname="/api.tf.aws_apigatewayv2_api.cine_api" file="/api.tf"/>
+		<testcase name="[NONE][CKV_AWS_145] Ensure that S3 buckets are encrypted with KMS by default" classname="/storage_s3.tf.aws_s3_bucket.posters" file="/storage_s3.tf"/>
 		<testcase name="[NONE][CKV2_AWS_16] Ensure that Auto Scaling is enabled on your DynamoDB tables" classname="/database_dynamo.tf.aws_dynamodb_table.seats" file="/database_dynamo.tf"/>
+		<testcase name="[NONE][CKV2_AWS_40] Ensure AWS IAM policy does not allow full IAM privileges" classname="/iam.tf.aws_iam_policy.dynamodb_put_policy" file="/iam.tf"/>
+		<testcase name="[NONE][CKV2_AWS_40] Ensure AWS IAM policy does not allow full IAM privileges" classname="/iam.tf.aws_iam_policy.db_secrets_policy" file="/iam.tf"/>
+		<testcase name="[NONE][CKV2_AWS_40] Ensure AWS IAM policy does not allow full IAM privileges" classname="/iam.tf.aws_iam_policy.s3_read_policy" file="/iam.tf"/>
 		<testcase name="[NONE][CKV2_AWS_75] Ensure no open CORS policy" classname="/compute.tf.aws_lambda_function.init_db" file="/compute.tf"/>
 		<testcase name="[NONE][CKV2_AWS_75] Ensure no open CORS policy" classname="/compute.tf.aws_lambda_function.get_billboard" file="/compute.tf"/>
 		<testcase name="[NONE][CKV2_AWS_75] Ensure no open CORS policy" classname="/compute.tf.aws_lambda_function.book_seat" file="/compute.tf"/>
 		<testcase name="[NONE][CKV2_AWS_75] Ensure no open CORS policy" classname="/compute.tf.aws_lambda_function.process_payment" file="/compute.tf"/>
 		<testcase name="[NONE][CKV2_AWS_75] Ensure no open CORS policy" classname="/compute.tf.aws_lambda_function.manage_admin" file="/compute.tf"/>
-		<testcase name="[NONE][CKV2_AWS_40] Ensure AWS IAM policy does not allow full IAM privileges" classname="/iam.tf.aws_iam_policy.dynamodb_put_policy" file="/iam.tf"/>
-		<testcase name="[NONE][CKV2_AWS_40] Ensure AWS IAM policy does not allow full IAM privileges" classname="/iam.tf.aws_iam_policy.db_secrets_policy" file="/iam.tf"/>
-		<testcase name="[NONE][CKV2_AWS_40] Ensure AWS IAM policy does not allow full IAM privileges" classname="/iam.tf.aws_iam_policy.s3_read_policy" file="/iam.tf"/>
-		<testcase name="[NONE][CKV2_AWS_51] Ensure AWS API Gateway endpoints uses client certificate authentication" classname="/api.tf.aws_apigatewayv2_stage.default" file="/api.tf"/>
 		<testcase name="[NONE][CKV2_AWS_69] Ensure AWS RDS database instance configured with encryption in transit" classname="/database_rds.tf.aws_db_instance.postgres" file="/database_rds.tf"/>
+		<testcase name="[NONE][CKV2_AWS_51] Ensure AWS API Gateway endpoints uses client certificate authentication" classname="/api.tf.aws_apigatewayv2_stage.default" file="/api.tf"/>
 		<testcase name="[NONE][CKV_AWS_76] Ensure API Gateway has Access Logging enabled" classname="/api.tf.aws_apigatewayv2_stage.default" file="/api.tf">
 			<failure type="failure" message="Ensure API Gateway has Access Logging enabled">
 Resource: aws_apigatewayv2_stage.default
@@ -1454,22 +1455,6 @@ Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aw
 		10 | }
 </failure>
 		</testcase>
-		<testcase name="[NONE][CKV_AWS_21] Ensure all data stored in the S3 bucket have versioning enabled" classname="/storage_s3.tf.aws_s3_bucket.posters" file="/storage_s3.tf">
-			<failure type="failure" message="Ensure all data stored in the S3 bucket have versioning enabled">
-Resource: aws_s3_bucket.posters
-File: /storage_s3.tf: 2-9
-Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-16-enable-versioning
-
-		2 | resource &quot;aws_s3_bucket&quot; &quot;posters&quot; {
-		3 |   bucket        = var.s3_bucket_name
-		4 |   force_destroy = true
-		5 | 
-		6 |   tags = {
-		7 |     Name = &quot;${var.project_name}-posters-bucket&quot;
-		8 |   }
-		9 | }
-</failure>
-		</testcase>
 		<testcase name="[NONE][CKV2_AWS_60] Ensure RDS instance with copy tags to snapshots is enabled" classname="/database_rds.tf.aws_db_instance.postgres" file="/database_rds.tf">
 			<failure type="failure" message="Ensure RDS instance with copy tags to snapshots is enabled">
 Resource: aws_db_instance.postgres
@@ -1502,6 +1487,22 @@ Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aw
 		54 |     Name = &quot;${var.project_name}-postgres&quot;
 		55 |   }
 		56 | }
+</failure>
+		</testcase>
+		<testcase name="[NONE][CKV_AWS_18] Ensure the S3 bucket has access logging enabled" classname="/storage_s3.tf.aws_s3_bucket.posters" file="/storage_s3.tf">
+			<failure type="failure" message="Ensure the S3 bucket has access logging enabled">
+Resource: aws_s3_bucket.posters
+File: /storage_s3.tf: 2-9
+Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-13-enable-logging
+
+		2 | resource &quot;aws_s3_bucket&quot; &quot;posters&quot; {
+		3 |   bucket        = var.s3_bucket_name
+		4 |   force_destroy = true
+		5 | 
+		6 |   tags = {
+		7 |     Name = &quot;${var.project_name}-posters-bucket&quot;
+		8 |   }
+		9 | }
 </failure>
 		</testcase>
 		<testcase name="[NONE][CKV2_AWS_57] Ensure Secrets Manager secrets should have automatic rotation enabled" classname="/security.tf.aws_secretsmanager_secret.db_secret" file="/security.tf">
@@ -1555,11 +1556,11 @@ Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aw
 		56 | }
 </failure>
 		</testcase>
-		<testcase name="[NONE][CKV_AWS_18] Ensure the S3 bucket has access logging enabled" classname="/storage_s3.tf.aws_s3_bucket.posters" file="/storage_s3.tf">
-			<failure type="failure" message="Ensure the S3 bucket has access logging enabled">
+		<testcase name="[NONE][CKV_AWS_144] Ensure that S3 bucket has cross-region replication enabled" classname="/storage_s3.tf.aws_s3_bucket.posters" file="/storage_s3.tf">
+			<failure type="failure" message="Ensure that S3 bucket has cross-region replication enabled">
 Resource: aws_s3_bucket.posters
 File: /storage_s3.tf: 2-9
-Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/s3-policies/s3-13-enable-logging
+Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-s3-bucket-has-cross-region-replication-enabled
 
 		2 | resource &quot;aws_s3_bucket&quot; &quot;posters&quot; {
 		3 |   bucket        = var.s3_bucket_name
@@ -1576,22 +1577,6 @@ Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aw
 Resource: aws_s3_bucket.posters
 File: /storage_s3.tf: 2-9
 Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-logging-policies/bc-aws-2-61
-
-		2 | resource &quot;aws_s3_bucket&quot; &quot;posters&quot; {
-		3 |   bucket        = var.s3_bucket_name
-		4 |   force_destroy = true
-		5 | 
-		6 |   tags = {
-		7 |     Name = &quot;${var.project_name}-posters-bucket&quot;
-		8 |   }
-		9 | }
-</failure>
-		</testcase>
-		<testcase name="[NONE][CKV_AWS_144] Ensure that S3 bucket has cross-region replication enabled" classname="/storage_s3.tf.aws_s3_bucket.posters" file="/storage_s3.tf">
-			<failure type="failure" message="Ensure that S3 bucket has cross-region replication enabled">
-Resource: aws_s3_bucket.posters
-File: /storage_s3.tf: 2-9
-Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/ensure-that-s3-bucket-has-cross-region-replication-enabled
 
 		2 | resource &quot;aws_s3_bucket&quot; &quot;posters&quot; {
 		3 |   bucket        = var.s3_bucket_name

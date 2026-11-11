@@ -15,7 +15,13 @@ resource "aws_s3_bucket_public_access_block" "posters" {
     ignore_public_acls = true
     restrict_public_buckets = true
 }
-
+//S3 Bucket Versioning
+resource "aws_s3_bucket_versioning" "posters" {
+  bucket = aws_s3_bucket.posters.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
 //S3 Bucket Encryption
 resource "aws_s3_bucket_server_side_encryption_configuration" "posters_encryption" {
   bucket = aws_s3_bucket.posters.id

@@ -7,6 +7,15 @@ resource "aws_s3_bucket" "posters" {
     Name = "${var.project_name}-posters-bucket"
   }
 }
+//S3 Bucket Public Access Block
+resource "aws_s3_bucket_public_access_block" "posters" {
+  bucket                  = aws_s3_bucket.posters.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
 //S3 Bucket Encryption
 resource "aws_s3_bucket_server_side_encryption_configuration" "posters_encryption" {
   bucket = aws_s3_bucket.posters.id

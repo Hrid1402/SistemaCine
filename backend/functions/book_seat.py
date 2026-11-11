@@ -58,7 +58,7 @@ def lambda_handler(event, context):
 
         # 3. Validar contra la base de datos RDS que la función exista
         secret_name = os.environ['DB_SECRET_NAME']
-        region_name = os.environ.get('AWS_REGION', 'sa-east-1')
+        region_name = os.environ['AWS_REGION']
         client = boto3.client('secretsmanager', region_name=region_name)
         secret = json.loads(client.get_secret_value(SecretId=secret_name)['SecretString'])
 

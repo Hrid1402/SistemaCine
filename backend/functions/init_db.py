@@ -36,6 +36,29 @@ def lambda_handler(event, context):
         ALTER TABLE movies ADD COLUMN IF NOT EXISTS room VARCHAR(50) NOT NULL DEFAULT 'Sala 1 - 2D';
         ALTER TABLE movies ADD COLUMN IF NOT EXISTS total_seats INT NOT NULL DEFAULT 300;
 
+        CREATE TABLE IF NOT EXISTS rooms (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) UNIQUE NOT NULL,
+            total_rows INT NOT NULL DEFAULT 15,
+            total_columns INT NOT NULL DEFAULT 20
+        );
+
+        CREATE TABLE IF NOT EXISTS movies_catalog (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            poster_key VARCHAR(255) NOT NULL,
+            duration_minutes INT NOT NULL DEFAULT 120
+        );
+
+        CREATE TABLE IF NOT EXISTS showtimes (
+            id SERIAL PRIMARY KEY,
+            movie_id INT NOT NULL,
+            room_id INT NOT NULL,
+            price DECIMAL(10, 2) NOT NULL DEFAULT 15.00,
+            start_time TIMESTAMP NOT NULL,
+            end_time TIMESTAMP NOT NULL
+        );
+
         CREATE TABLE IF NOT EXISTS payments (
             id SERIAL PRIMARY KEY,
             idempotency_key VARCHAR(255) UNIQUE NOT NULL,

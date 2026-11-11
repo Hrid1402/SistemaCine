@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 def get_db_connection():
     """Recupera credenciales de AWS Secrets Manager y se conecta a PostgreSQL (RDS)."""
     secret_name = os.environ['DB_SECRET_NAME']
-    region_name = os.environ.get('AWS_REGION', 'sa-east-1')
+    region_name = os.environ['AWS_REGION']
     
     client = boto3.client('secretsmanager', region_name=region_name)
     secret = json.loads(client.get_secret_value(SecretId=secret_name)['SecretString'])
@@ -162,7 +162,7 @@ def lambda_handler(event, context):
         user_id = claims.get('email') or claims.get('username') or claims.get('sub')
         
         cognito_groups = claims.get('cognito:groups', [])
-        if 'Admin' not in cognito_groups:
+        if 'Admin' not in cognito_groups and 'Admins' not in cognito_groups:
             return {"statusCode": 403, "body": json.dumps({"error": "No tienes permisos de administrador."})}
 
         body = json.loads(event.get('body', '{}')) if isinstance(event.get('body'), str) else (event.get('body') or {})

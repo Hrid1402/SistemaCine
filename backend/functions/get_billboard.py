@@ -11,7 +11,7 @@ def lambda_handler(event, context):
     try:
         secret_name = os.environ['DB_SECRET_NAME']
         bucket_name = os.environ['S3_BUCKET_NAME']
-        region_name = os.environ.get('AWS_REGION', 'sa-east-1')
+        region_name = os.environ['AWS_REGION']
         table_name = os.environ['DYNAMODB_TABLE_NAME']
 
         # Recupera credenciales desde AWS Secrets Manager
@@ -34,7 +34,12 @@ def lambda_handler(event, context):
         cursor.close()
         conn.close()
         
-        s3_client = boto3.client('s3', region_name=region_name, config=Config(signature_version='s3v4'))
+        s3_client = boto3.client(
+            's3',
+            region_name=region_name,
+            endpoint_url=f"https://s3.{region_name}.amazonaws.com",
+            config=Config(signature_version='s3v4', s3={'addressing_style': 'virtual'})
+        )
         table = dynamodb.Table(table_name)
         
         movies = []

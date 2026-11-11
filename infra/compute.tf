@@ -46,16 +46,20 @@ resource "aws_lambda_invocation" "init_db" {
   ]
 }
 
-resource "aws_lambda_function" "get_billboard" {
+resource "aws_lambda_function" "init_db" {
   filename         = data.archive_file.lambda_zip.output_path
-  function_name    = "cine-get-billboard"
-  role             = aws_iam_role.lambda_get_billboard.arn
-  handler          = "get_billboard.lambda_handler"
+  function_name    = "cine-init-db"
+  role             = aws_iam_role.lambda_init_db.arn
+  handler          = "init_db.lambda_handler"
   runtime          = "python3.11"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   layers           = [aws_lambda_layer_version.psycopg2_layer.arn]
-  timeout          = 15
+  timeout          = 30
   memory_size      = 256
+
+  tracing_config {
+    mode = "Active"
+  }
 
   environment {
     variables = {

@@ -28,3 +28,9 @@ variable "db_password" {
   sensitive = true
   default   = "CineSpotTemporal2026!"
 }
+
+variable "environment" {
+  type        = string
+  description = "Entorno de despliegue (dev, qa, prod)"
+  default     = "dev"
+}

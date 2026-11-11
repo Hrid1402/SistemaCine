@@ -20,6 +20,10 @@ resource "aws_dynamodb_table" "seats" {
     kms_key_arn = aws_kms_key.main.arn
   }
 
+  point_in_time_recovery {
+    enabled = true
+  }
+
   tags = {
     Name = "${var.project_name}-seats-table"
   }

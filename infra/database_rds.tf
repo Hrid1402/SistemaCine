@@ -29,6 +29,7 @@ resource "aws_security_group" "rds_sg" {
 
 //RDS PostgreSQL
 resource "aws_db_instance" "postgres" {
+  copy_tags_to_snapshot = true
   identifier        = "${var.project_name}-postgres"
   engine            = "postgres"
   engine_version    = "16"

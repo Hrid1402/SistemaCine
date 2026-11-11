@@ -7,6 +7,14 @@ resource "aws_s3_bucket" "posters" {
     Name = "${var.project_name}-posters-bucket"
   }
 }
+
+resource "aws_s3_bucket_versioning" "posters_versioning" {
+  bucket = aws_s3_bucket.posters.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
 //S3 Bucket Public Access Block
 resource "aws_s3_bucket_public_access_block" "posters" {
     bucket = aws_s3_bucket.posters.id

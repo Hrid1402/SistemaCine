@@ -16,6 +16,7 @@ resource "aws_security_group" "rds_sg" {
   }
 
   egress {
+    description = "Trafico saliente general"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"

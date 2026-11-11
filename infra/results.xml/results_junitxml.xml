@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
-<testsuites disabled="0" errors="0" failures="61" tests="193" time="0.0">
-	<testsuite disabled="0" errors="0" failures="61" name="terraform scan" skipped="0" tests="193" time="0">
+<testsuites disabled="0" errors="0" failures="60" tests="193" time="0.0">
+	<testsuite disabled="0" errors="0" failures="60" name="terraform scan" skipped="0" tests="193" time="0">
 		<properties>
 			<property name="directory" value="['/tf']"/>
 			<property name="add_check" value="False"/>
@@ -59,6 +59,7 @@
 		<testcase name="[NONE][CKV_AWS_363] Ensure Lambda Runtime is not deprecated" classname="/compute.tf.aws_lambda_function.manage_admin" file="/compute.tf"/>
 		<testcase name="[NONE][CKV_AWS_45] Ensure no hard-coded secrets exist in lambda environment" classname="/compute.tf.aws_lambda_function.manage_admin" file="/compute.tf"/>
 		<testcase name="[NONE][CKV_AWS_119] Ensure DynamoDB Tables are encrypted using a KMS Customer Managed CMK" classname="/database_dynamo.tf.aws_dynamodb_table.seats" file="/database_dynamo.tf"/>
+		<testcase name="[NONE][CKV_AWS_28] Ensure DynamoDB point in time recovery (backup) is enabled" classname="/database_dynamo.tf.aws_dynamodb_table.seats" file="/database_dynamo.tf"/>
 		<testcase name="[NONE][CKV_AWS_260] Ensure no security groups allow ingress from 0.0.0.0:0 to port 80" classname="/database_rds.tf.aws_security_group.rds_sg" file="/database_rds.tf"/>
 		<testcase name="[NONE][CKV_AWS_277] Ensure no security groups allow ingress from 0.0.0.0:0 to port -1" classname="/database_rds.tf.aws_security_group.rds_sg" file="/database_rds.tf"/>
 		<testcase name="[NONE][CKV_AWS_25] Ensure no security groups allow ingress from 0.0.0.0:0 to port 3389" classname="/database_rds.tf.aws_security_group.rds_sg" file="/database_rds.tf"/>
@@ -155,9 +156,9 @@
 		<testcase name="[NONE][CKV2_AWS_56] Ensure AWS Managed IAMFullAccess IAM policy is not used." classname="/iam.tf.aws_iam_role.lambda_manage_admin" file="/iam.tf"/>
 		<testcase name="[NONE][CKV2_AWS_56] Ensure AWS Managed IAMFullAccess IAM policy is not used." classname="/iam.tf.aws_iam_role_policy_attachment.manage_admin_basic" file="/iam.tf"/>
 		<testcase name="[NONE][CKV_AWS_20] S3 Bucket has an ACL defined which allows public READ access." classname="/storage_s3.tf.aws_s3_bucket.posters" file="/storage_s3.tf"/>
-		<testcase name="[NONE][CKV_AWS_145] Ensure that S3 buckets are encrypted with KMS by default" classname="/storage_s3.tf.aws_s3_bucket.posters" file="/storage_s3.tf"/>
 		<testcase name="[NONE][CKV2_AWS_5] Ensure that Security Groups are attached to another resource" classname="/database_rds.tf.aws_security_group.rds_sg" file="/database_rds.tf"/>
 		<testcase name="[NONE][CKV2_AWS_77] Ensure AWS API Gateway Rest API attached WAFv2 WebACL is configured with AMR for Log4j Vulnerability" classname="/api.tf.aws_apigatewayv2_api.cine_api" file="/api.tf"/>
+		<testcase name="[NONE][CKV_AWS_145] Ensure that S3 buckets are encrypted with KMS by default" classname="/storage_s3.tf.aws_s3_bucket.posters" file="/storage_s3.tf"/>
 		<testcase name="[NONE][CKV2_AWS_16] Ensure that Auto Scaling is enabled on your DynamoDB tables" classname="/database_dynamo.tf.aws_dynamodb_table.seats" file="/database_dynamo.tf"/>
 		<testcase name="[NONE][CKV2_AWS_40] Ensure AWS IAM policy does not allow full IAM privileges" classname="/iam.tf.aws_iam_policy.dynamodb_put_policy" file="/iam.tf"/>
 		<testcase name="[NONE][CKV2_AWS_40] Ensure AWS IAM policy does not allow full IAM privileges" classname="/iam.tf.aws_iam_policy.db_secrets_policy" file="/iam.tf"/>
@@ -963,38 +964,6 @@ Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aw
 		122 |     }
 		123 |   }
 		124 | }</failure>
-		</testcase>
-		<testcase name="[NONE][CKV_AWS_28] Ensure DynamoDB point in time recovery (backup) is enabled" classname="/database_dynamo.tf.aws_dynamodb_table.seats" file="/database_dynamo.tf">
-			<failure type="failure" message="Ensure DynamoDB point in time recovery (backup) is enabled">
-Resource: aws_dynamodb_table.seats
-File: /database_dynamo.tf: 2-26
-Guideline: https://docs.prismacloud.io/en/enterprise-edition/policy-reference/aws-policies/aws-general-policies/general-6
-
-		2  | resource &quot;aws_dynamodb_table&quot; &quot;seats&quot; {
-		3  |   name         = &quot;${var.project_name}-seats&quot;
-		4  |   billing_mode = &quot;PAY_PER_REQUEST&quot;
-		5  |   hash_key     = &quot;showtime_id&quot;
-		6  |   range_key    = &quot;seat_id&quot;
-		7  | 
-		8  |   attribute {
-		9  |     name = &quot;showtime_id&quot;
-		10 |     type = &quot;S&quot;
-		11 |   }
-		12 | 
-		13 |   attribute {
-		14 |     name = &quot;seat_id&quot;
-		15 |     type = &quot;S&quot;
-		16 |   }
-		17 | 
-		18 |   server_side_encryption {
-		19 |     enabled     = true
-		20 |     kms_key_arn = aws_kms_key.main.arn
-		21 |   }
-		22 | 
-		23 |   tags = {
-		24 |     Name = &quot;${var.project_name}-seats-table&quot;
-		25 |   }
-		26 | }</failure>
 		</testcase>
 		<testcase name="[NONE][CKV_AWS_148] Ensure no default VPC is planned to be provisioned" classname="/database_rds.tf.aws_default_vpc.default" file="/database_rds.tf">
 			<failure type="failure" message="Ensure no default VPC is planned to be provisioned">

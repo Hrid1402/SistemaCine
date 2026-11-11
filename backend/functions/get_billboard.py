@@ -40,12 +40,40 @@ def lambda_handler(event, context):
         movies = []
         for r in rows:
             showtime_id_str = str(r[0])
-            total_seats = int(r[5])
             
-            # Consultar en DynamoDB qué asientos ya están ocupados en esta función
+            # Consultar en DynamoDB los asientos reservados/ocupados para esta función
             resp = table.query(KeyConditionExpression=Key('showtime_id').eq(showtime_id_str))
-            occupied_seats = [item['seat_id'] for item in resp.get('Items', [])]
-            available_seats = max(0, total_seats - len(occupied_seats))
+            items = resp.get('Items', [])
+            
+            seats_status_map = {}
+            for item in items:
+                f = int(item.get('fila', 0))
+                c = int(item.get('columna', 0))
+                seats_status_map[(f, c)] = item.get('status', 'OCUPADO')
+
+            room_matrix = []
+            total_seats = 300
+            occupied_count = 0
+
+            for r_idx in range(1, 16):
+                row_seats = []
+                row_letter = chr(64 + r_idx)
+                for c_idx in range(1, 21):
+                    status = "DISPONIBLE"
+                    if (r_idx, c_idx) in seats_status_map:
+                        status = seats_status_map[(r_idx, c_idx)]
+                        occupied_count += 1
+                    
+                    seat_obj = {
+                        "fila": r_idx,
+                        "columna": c_idx,
+                        "nombre": f"{row_letter}-{c_idx}",
+                        "estado": status
+                    }
+                    row_seats.append(seat_obj)
+                room_matrix.append(row_seats)
+
+            available_seats = max(0, total_seats - occupied_count)
             is_full = available_seats == 0
 
             presigned_url = s3_client.generate_presigned_url(
@@ -62,8 +90,8 @@ def lambda_handler(event, context):
                 "total_seats": total_seats,
                 "available_seats": available_seats,
                 "is_full": is_full,
-                "room_layout": "Filas A, B, C (asientos del 1 al 10)",
-                "occupied_seats": occupied_seats,
+                "room_layout": "Matriz 15x20 (Filas 1-15, Columnas 1-20)",
+                "room_matrix": room_matrix,
                 "poster_url": presigned_url
             })
 

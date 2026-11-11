@@ -1,21 +1,21 @@
 resource "aws_cloudwatch_log_group" "cartelera" {
   name              = "/aws/lambda/${aws_lambda_function.get_billboard.function_name}"
-  retention_in_days = 14
+  retention_in_days = 365
 }
 
 resource "aws_cloudwatch_log_group" "reservar" {
   name              = "/aws/lambda/${aws_lambda_function.book_seat.function_name}"
-  retention_in_days = 14
+  retention_in_days = 365
 }
 
 resource "aws_cloudwatch_log_group" "pagar" {
   name              = "/aws/lambda/${aws_lambda_function.process_payment.function_name}"
-  retention_in_days = 14
+  retention_in_days = 365
 }
 
 resource "aws_cloudwatch_log_group" "init_db" {
   name              = "/aws/lambda/${aws_lambda_function.init_db.function_name}"
-  retention_in_days = 14
+  retention_in_days = 365
 }
 
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {

@@ -16,6 +16,7 @@ resource "aws_security_group" "rds_sg" {
   }
 
   egress {
+    description = "Trafico saliente general"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -29,6 +30,7 @@ resource "aws_security_group" "rds_sg" {
 
 //RDS PostgreSQL
 resource "aws_db_instance" "postgres" {
+  copy_tags_to_snapshot = true
   identifier        = "${var.project_name}-postgres"
   engine            = "postgres"
   engine_version    = "16"

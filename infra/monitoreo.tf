@@ -144,3 +144,25 @@ output "cognito_region" {
   description = "Region del User Pool de Cognito"
   value       = var.aws_region
 }
+resource "aws_sqs_queue" "dlq" {
+  name                      = "${var.project_name}-cola-errores"
+  message_retention_seconds = 1209600 # 14 days
+  kms_master_key_id         = aws_kms_key.main.key_id
+  tags = {
+    Name = "${var.project_name}-cola-errores"
+  }
+}
+
+resource "aws_sqs_queue" "compras" {
+  name                       = "${var.project_name}-cola-compras"
+  visibility_timeout_seconds = 30
+  message_retention_seconds  = 86400 # 1 day
+  kms_master_key_id          = aws_kms_key.main.key_id
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.dlq.arn
+    maxReceiveCount     = 3
+  })
+  tags = {
+    Name = "${var.project_name}-cola-compras"
+  }
+}

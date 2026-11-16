@@ -31,12 +31,12 @@ resource "aws_security_group" "rds_sg" {
 //RDS PostgreSQL
 resource "aws_db_instance" "postgres" {
   copy_tags_to_snapshot = true
-  identifier        = "${var.project_name}-postgres"
-  engine            = "postgres"
-  engine_version    = "16"
-  instance_class    = "db.t3.micro"
-  allocated_storage = 20
-  storage_type      = "gp2"
+  identifier            = "${var.project_name}-postgres"
+  engine                = "postgres"
+  engine_version        = "16"
+  instance_class        = "db.t3.micro"
+  allocated_storage     = 20
+  storage_type          = "gp2"
 
   db_name  = "rds_postgres"
   username = var.db_username
@@ -49,8 +49,9 @@ resource "aws_db_instance" "postgres" {
   storage_encrypted = true
   kms_key_id        = aws_kms_key.main.arn
 
-  skip_final_snapshot = true
-  deletion_protection = false
+  skip_final_snapshot     = true
+  deletion_protection     = false
+  backup_retention_period = 7
 
   tags = {
     Name = "${var.project_name}-postgres"

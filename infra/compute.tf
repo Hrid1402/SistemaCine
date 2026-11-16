@@ -81,6 +81,7 @@ resource "aws_lambda_function" "book_seat" {
     variables = {
       DYNAMODB_TABLE_NAME = aws_dynamodb_table.seats.name
       DB_SECRET_NAME      = aws_secretsmanager_secret.db_secret.name
+      SQS_QUEUE_URL       = aws_sqs_queue.compras.id
     }
   }
 }
@@ -100,11 +101,12 @@ resource "aws_lambda_function" "process_payment" {
     variables = {
       DB_SECRET_NAME      = aws_secretsmanager_secret.db_secret.name
       DYNAMODB_TABLE_NAME = aws_dynamodb_table.seats.name
+      SNS_TOPIC_ARN       = aws_sns_topic.alertas.arn
     }
   }
 }
 
-# --- NUEVO: Función Lambda para Administración (manage_admin) ---
+#Función Lambda para Administración (manage_admin)
 resource "aws_lambda_function" "manage_admin" {
   filename         = data.archive_file.lambda_zip.output_path
   function_name    = "cine-manage-admin"
@@ -121,4 +123,11 @@ resource "aws_lambda_function" "manage_admin" {
       DB_SECRET_NAME = aws_secretsmanager_secret.db_secret.name
     }
   }
+}
+
+resource "aws_lambda_event_source_mapping" "sqs_compras_to_payment" {
+  event_source_arn = aws_sqs_queue.compras.arn
+  function_name    = aws_lambda_function.process_payment.arn
+  batch_size       = 10
+  enabled          = true
 }

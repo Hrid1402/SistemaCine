@@ -25,6 +25,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   evaluation_periods  = 1
   threshold           = 1
   treat_missing_data  = "notBreaching"
+  alarm_actions       = [aws_sns_topic.alertas.arn]
 
   metric_query {
     id          = "total"
@@ -165,4 +166,54 @@ resource "aws_sqs_queue" "compras" {
   tags = {
     Name = "${var.project_name}-cola-compras"
   }
+}
+
+//SNS
+resource "aws_sns_topic" "alertas" {
+  name              = "${var.project_name}-alertas-sns"
+  kms_master_key_id = aws_kms_key.main.key_id
+  tags = {
+    Name = "${var.project_name}-alertas-sns"
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "dlq_messages_alarm" {
+  alarm_name          = "${var.project_name}-dlq-errors-alarm"
+  alarm_description   = "Alerta inmediata cuando un pago falla sus 3 intentos e ingresa a la Cola de errores"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  namespace           = "AWS/SQS"
+  period              = 60
+  statistic           = "Sum"
+  threshold           = 1
+  treat_missing_data  = "notBreaching"
+
+
+  dimensions = {
+    QueueName = aws_sqs_queue.dlq.name
+  }
+
+  alarm_actions = [aws_sns_topic.alertas.arn]
+}
+
+resource "aws_cloudwatch_log_group" "admin" {
+  name              = "/aws/lambda/${aws_lambda_function.manage_admin.function_name}"
+  retention_in_days = 365
+}
+
+
+output "sqs_compras_url" {
+  description = "URL de la Cola de compras en SQS"
+  value       = aws_sqs_queue.compras.id
+}
+
+output "sqs_errores_dlq_url" {
+  description = "URL de la Cola de errores (DLQ) en SQS"
+  value       = aws_sqs_queue.dlq.id
+}
+
+output "sns_topic_arn" {
+  description = "ARN del topico SNS de alertas y confirmaciones"
+  value       = aws_sns_topic.alertas.arn
 }

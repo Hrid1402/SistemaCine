@@ -35,7 +35,7 @@ resource "aws_cognito_user_pool_client" "cine_app" {
   user_pool_id                  = aws_cognito_user_pool.cine_users.id
   generate_secret               = false
   prevent_user_existence_errors = "ENABLED"
-  
+
   explicit_auth_flows = [
     "ALLOW_USER_PASSWORD_AUTH",
     "ALLOW_USER_SRP_AUTH",
@@ -76,6 +76,11 @@ resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.cine_api.id
   name        = "$default"
   auto_deploy = true
+
+  default_route_settings {
+    throttling_burst_limit = 6000
+    throttling_rate_limit  = 12000
+  }
 }
 
 # --- INTEGRACIONES API GATEWAY ---
@@ -118,20 +123,20 @@ resource "aws_apigatewayv2_route" "cartelera" {
 }
 
 resource "aws_apigatewayv2_route" "reservar" {
-  api_id             = aws_apigatewayv2_api.cine_api.id
-  route_key          = "POST /reservar"
-  target             = "integrations/${aws_apigatewayv2_integration.reservar.id}"
-  authorization_type = "JWT"
-  authorizer_id      = aws_apigatewayv2_authorizer.cognito_jwt.id
+  api_id               = aws_apigatewayv2_api.cine_api.id
+  route_key            = "POST /reservar"
+  target               = "integrations/${aws_apigatewayv2_integration.reservar.id}"
+  authorization_type   = "JWT"
+  authorizer_id        = aws_apigatewayv2_authorizer.cognito_jwt.id
   authorization_scopes = ["aws.cognito.signin.user.admin"]
 }
 
 resource "aws_apigatewayv2_route" "pagar" {
-  api_id             = aws_apigatewayv2_api.cine_api.id
-  route_key          = "POST /pagar"
-  target             = "integrations/${aws_apigatewayv2_integration.pagar.id}"
-  authorization_type = "JWT"
-  authorizer_id      = aws_apigatewayv2_authorizer.cognito_jwt.id
+  api_id               = aws_apigatewayv2_api.cine_api.id
+  route_key            = "POST /pagar"
+  target               = "integrations/${aws_apigatewayv2_integration.pagar.id}"
+  authorization_type   = "JWT"
+  authorizer_id        = aws_apigatewayv2_authorizer.cognito_jwt.id
   authorization_scopes = ["aws.cognito.signin.user.admin"]
 }
 

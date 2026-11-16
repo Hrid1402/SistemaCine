@@ -7,16 +7,29 @@ terraform {
   }
 
   backend "s3" {
-  key          = "lab09/dev/terraform.tfstate"
-  encrypt      = true
-  use_lockfile = true
+    key          = "lab09/dev/terraform.tfstate"
+    encrypt      = true
+    use_lockfile = true
+  }
 }
-}
+
 
 provider "aws" {
   region  = var.aws_region
   profile = var.aws_profile
 
+  default_tags {
+    tags = {
+      Project     = var.project_name
+      Environment = var.environment
+    }
+  }
+}
+
+provider "aws" {
+  alias   = "dr"
+  region  = var.aws_backup_region
+  profile = var.aws_profile
   default_tags {
     tags = {
       Project     = var.project_name

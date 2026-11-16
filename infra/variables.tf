@@ -8,6 +8,11 @@ variable "aws_region" {
   default = "sa-east-1"
 }
 
+variable "aws_backup_region" {
+  type    = string
+  default = "us-east-1"
+}
+
 variable "project_name" {
   type    = string
   default = "cinespot-pmv"

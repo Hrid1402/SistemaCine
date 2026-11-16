@@ -152,6 +152,59 @@ resource "aws_iam_policy" "dynamodb_put_policy" {
     ]
   })
 }
+#Políticas para SQS y SNS
+resource "aws_iam_policy" "sqs_send_policy" {
+  name        = "${var.project_name}-sqs-send-policy"
+  description = "Allows book_seat Lambda to send messages to the purchases queue"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["sqs:SendMessage", "sqs:GetQueueAttributes"]
+        Resource = aws_sqs_queue.compras.arn
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["kms:GenerateDataKey", "kms:Decrypt"]
+        Resource = aws_kms_key.main.arn
+      }
+    ]
+  })
+}
+resource "aws_iam_role_policy_attachment" "book_seat_sqs" {
+  role       = aws_iam_role.lambda_book_seat.name
+  policy_arn = aws_iam_policy.sqs_send_policy.arn
+}
+
+resource "aws_iam_policy" "payment_sqs_sns_policy" {
+  name        = "${var.project_name}-payment-sqs-sns-policy"
+  description = "Allows process_payment Lambda to consume purchases queue and publish to SNS"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"]
+        Resource = aws_sqs_queue.compras.arn
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["sns:Publish"]
+        Resource = aws_sns_topic.alertas.arn
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["kms:GenerateDataKey", "kms:Decrypt"]
+        Resource = aws_kms_key.main.arn
+      }
+    ]
+  })
+}
+resource "aws_iam_role_policy_attachment" "process_payment_sqs_sns" {
+  role       = aws_iam_role.lambda_process_payment.name
+  policy_arn = aws_iam_policy.payment_sqs_sns_policy.arn
+}
 
 # Política compartida para lectura de Secrets Manager y descifrado KMS
 resource "aws_iam_policy" "db_secrets_policy" {

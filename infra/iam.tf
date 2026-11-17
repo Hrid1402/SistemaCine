@@ -268,3 +268,59 @@ resource "aws_iam_role_policy_attachment" "aws_backup_restore" {
   role       = aws_iam_role.aws_backup.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores"
 }
+
+# Rol IAM para RDS Proxy
+resource "aws_iam_role" "rds_proxy_role" {
+  name = "${var.project_name}-rds-proxy-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = { Service = "rds.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "rds_proxy_policy" {
+  name = "${var.project_name}-rds-proxy-policy"
+  role = aws_iam_role.rds_proxy_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
+        Resource = [aws_secretsmanager_secret.db_secret.arn]
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["kms:Decrypt"]
+        Resource = [aws_kms_key.main.arn]
+      }
+    ]
+  })
+}
+
+# Adjuntar permisos de red VPC a las Lambdas dentro de la VPC
+resource "aws_iam_role_policy_attachment" "init_db_vpc" {
+  role       = aws_iam_role.lambda_init_db.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "get_billboard_vpc" {
+  role       = aws_iam_role.lambda_get_billboard.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "process_payment_vpc" {
+  role       = aws_iam_role.lambda_process_payment.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "manage_admin_vpc" {
+  role       = aws_iam_role.lambda_manage_admin.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}

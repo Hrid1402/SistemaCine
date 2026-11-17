@@ -132,3 +132,37 @@ resource "aws_vpc_endpoint" "s3" {
 
   tags = { Name = "${var.project_name}-s3-vpce" }
 }
+
+# Interface VPC Endpoints
+resource "aws_vpc_endpoint" "secretsmanager" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.${var.aws_region}.secretsmanager"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [aws_subnet.privada_az1.id, aws_subnet.privada_az2.id]
+  security_group_ids  = [aws_security_group.vpce_sg.id]
+  private_dns_enabled = true
+
+  tags = { Name = "${var.project_name}-secretsmanager-vpce" }
+}
+
+resource "aws_vpc_endpoint" "sns" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.${var.aws_region}.sns"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [aws_subnet.privada_az1.id, aws_subnet.privada_az2.id]
+  security_group_ids  = [aws_security_group.vpce_sg.id]
+  private_dns_enabled = true
+
+  tags = { Name = "${var.project_name}-sns-vpce" }
+}
+
+resource "aws_vpc_endpoint" "kms" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.${var.aws_region}.kms"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [aws_subnet.privada_az1.id, aws_subnet.privada_az2.id]
+  security_group_ids  = [aws_security_group.vpce_sg.id]
+  private_dns_enabled = true
+
+  tags = { Name = "${var.project_name}-kms-vpce" }
+}

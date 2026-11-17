@@ -1,4 +1,5 @@
 terraform {
+  required_version = ">= 1.5.0"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -7,15 +8,14 @@ terraform {
   }
 
   backend "s3" {
-    key          = "lab09/dev/terraform.tfstate"
-    encrypt      = true
+    key         = "lab09/dev/terraform.tfstate"
+    encrypt     = true
     use_lockfile = true
   }
 }
 
-
 provider "aws" {
-  region  = var.aws_region
+  region  = "sa-east-1"
   profile = var.aws_profile
 
   default_tags {
@@ -28,7 +28,7 @@ provider "aws" {
 
 provider "aws" {
   alias   = "dr"
-  region  = var.aws_backup_region
+  region  = "us-east-1"
   profile = var.aws_profile
   default_tags {
     tags = {

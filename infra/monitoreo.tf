@@ -20,7 +20,7 @@ resource "aws_cloudwatch_log_group" "init_db" {
 
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   alarm_name          = "${var.project_name}-lambda-errors"
-  alarm_description   = "Errores acumulados en las Lambdas de cartelera, reserva y pago"
+  alarm_description   = "Errores acumulados en las Lambdas de cartelera, reserva, pago y administración"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 1
   threshold           = 1
@@ -30,7 +30,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   metric_query {
     id          = "total"
     expression  = "SUM(METRICS())"
-    label       = "Errores totales de las 3 Lambdas"
+    label       = "Errores totales de las Lambdas"
     return_data = true
   }
 
@@ -72,6 +72,20 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
       stat        = "Sum"
       dimensions = {
         FunctionName = aws_lambda_function.process_payment.function_name
+      }
+    }
+  }
+
+  metric_query {
+    id          = "admin"
+    return_data = false
+    metric {
+      metric_name = "Errors"
+      namespace   = "AWS/Lambda"
+      period      = 300
+      stat        = "Sum"
+      dimensions = {
+        FunctionName = aws_lambda_function.manage_admin.function_name
       }
     }
   }

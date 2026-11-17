@@ -20,7 +20,7 @@ resource "aws_lambda_function" "init_db" {
   runtime          = "python3.11"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   layers           = [aws_lambda_layer_version.psycopg2_layer.arn]
-  timeout          = 30
+  timeout          = 60
   memory_size      = 256
 
   # Integración con la Red Privada (VPC)

@@ -108,6 +108,14 @@ resource "aws_security_group" "rds_proxy_sg" {
     security_groups = [aws_security_group.lambda_vpc_sg.id]
   }
 
+  egress {
+    description = "Permitir trafico saliente general hacia RDS"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = {
     Name        = "${var.project_name}-rds-proxy-sg"
     Environment = var.environment

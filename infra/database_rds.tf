@@ -101,7 +101,4 @@ resource "aws_secretsmanager_secret_version" "db_secret_val" {
     port     = 5432
     dbname   = aws_db_instance.postgres.db_name
   })
-  lifecycle {
-    ignore_changes = [secret_string]
-  }
 }

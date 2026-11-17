@@ -1,5 +1,5 @@
 variable "aws_profile" {
-  type = string
+  type    = string
   default = null
 }
 

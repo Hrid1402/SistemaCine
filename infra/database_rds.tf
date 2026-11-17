@@ -36,7 +36,7 @@ resource "aws_db_instance" "postgres" {
   allocated_storage       = 20
   max_allocated_storage   = 100
   engine                  = "postgres"
-  engine_version          = "15.4"
+  engine_version          = "16"
   instance_class          = "db.t3.micro"
   db_name                 = "cinemadb"
   username                = var.db_username
@@ -87,7 +87,7 @@ resource "aws_db_proxy_default_target_group" "proxy_target_group" {
 resource "aws_db_proxy_target" "proxy_target" {
   db_proxy_name          = aws_db_proxy.postgres_proxy.name
   target_group_name      = aws_db_proxy_default_target_group.proxy_target_group.name
-  db_instance_identifier = aws_db_instance.postgres.id
+  db_instance_identifier = lower(aws_db_instance.postgres.identifier)
 }
 
 # --- Actualizar Secrets Manager para apuntar al Endpoint del Proxy ---

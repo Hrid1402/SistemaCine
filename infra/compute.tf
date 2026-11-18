@@ -78,6 +78,7 @@ resource "aws_lambda_function" "get_billboard" {
       DB_HOST             = aws_db_proxy.postgres_proxy.endpoint
       S3_BUCKET_NAME      = aws_s3_bucket.posters.id
       DYNAMODB_TABLE_NAME = aws_dynamodb_table.seats.name
+      CLOUDFRONT_DOMAIN   = aws_cloudfront_distribution.cine_cdn.domain_name
     }
   }
 }

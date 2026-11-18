@@ -42,3 +42,17 @@ resource "aws_kms_alias" "dr" {
   name          = "alias/${var.project_name}-kms-key-dr"
   target_key_id = aws_kms_key.dr.key_id
 }
+
+//Key KMS 
+data "aws_iam_policy_document" "kms_key_policy" {
+  statement {
+    sid       = "AllowCloudFrontDecrypt"
+    actions   = ["kms:Decrypt", "kms:DescribeKey"]
+    resources = ["*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+  }
+}

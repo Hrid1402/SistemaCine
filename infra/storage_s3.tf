@@ -44,3 +44,27 @@ resource "aws_s3_object" "sample_poster" {
   content_type = endswith(each.value, ".png") ? "image/png" : "image/jpeg"
   etag         = filemd5("${path.module}/../assets/posters/${each.value}")
 }
+
+//OAC s3 
+data "aws_iam_policy_document" "s3_oac_policy" {
+  statement {
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.posters.arn}/*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.cine_cdn.arn]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "posters_bucket_policy" {
+  bucket = aws_s3_bucket.posters.id
+  policy = data.aws_iam_policy_document.s3_oac_policy.json
+}

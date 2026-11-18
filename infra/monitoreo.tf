@@ -231,3 +231,18 @@ output "sns_topic_arn" {
   description = "ARN del topico SNS de alertas y confirmaciones"
   value       = aws_sns_topic.alertas.arn
 }
+
+output "cloudfront_url" {
+  description = "Dominio publico de CloundFront"
+  value       = aws_cloudfront_distribution.cine_cdn.domain_name
+}
+
+output "aws_route53_zone_id" {
+  description = "ID de la zona alojada en Route53"
+  value       = aws_route53_zone.main.zone_id
+}
+
+output "acm_certificate_arn" {
+  description = "ARN del certificado SSL en ACM"
+  value       = aws_acm_certificate.cert.arn
+}

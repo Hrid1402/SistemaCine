@@ -39,3 +39,9 @@ variable "environment" {
   description = "Entorno de despliegue (dev, qa, prod)"
   default     = "dev"
 }
+
+variable "domain_name" {
+  type        = string
+  description = "Dominio principal"
+  default     = "cinespot.com"
+}

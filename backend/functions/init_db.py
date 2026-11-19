@@ -12,12 +12,14 @@ def lambda_handler(event, context):
     client = boto3.client('secretsmanager', region_name=region_name)
     secret = json.loads(client.get_secret_value(SecretId=secret_name)['SecretString'])
 
+    db_host = os.environ.get('DB_DIRECT_HOST') or secret.get('host')
+
     conn = None
     for attempt in range(6):
         try:
-            print(f"Intento de conexion {attempt + 1}/6...")
+            print(f"Intento de conexion {attempt + 1}/6 a {db_host}...")
             conn = psycopg2.connect(
-                host=secret['host'],
+                host=db_host,
                 database=secret['dbname'],
                 user=secret['username'],
                 password=secret['password'],

@@ -32,7 +32,7 @@ resource "aws_lambda_function" "init_db" {
   environment {
     variables = {
       DB_SECRET_NAME = aws_secretsmanager_secret.db_secret.name
-      DB_HOST        = aws_db_proxy.postgres_proxy.endpoint
+      DB_DIRECT_HOST = aws_db_instance.postgres.address
     }
   }
 }

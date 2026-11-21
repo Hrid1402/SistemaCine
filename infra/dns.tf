@@ -7,6 +7,10 @@ resource "aws_acm_certificate" "cert" {
   tags = {
     Environment = var.environment
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 //Zona host en Route 53

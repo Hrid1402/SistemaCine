@@ -1,11 +1,16 @@
 variable "aws_profile" {
-  type = string
+  type    = string
   default = null
 }
 
 variable "aws_region" {
   type    = string
   default = "sa-east-1"
+}
+
+variable "aws_backup_region" {
+  type    = string
+  default = "us-east-1"
 }
 
 variable "project_name" {
@@ -33,4 +38,10 @@ variable "environment" {
   type        = string
   description = "Entorno de despliegue (dev, qa, prod)"
   default     = "dev"
+}
+
+variable "domain_name" {
+  type        = string
+  description = "Dominio principal"
+  default     = "cinespot.com"
 }

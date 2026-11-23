@@ -25,3 +25,34 @@ resource "aws_secretsmanager_secret" "db_secret" {
     Name = "${var.project_name}-db-secret"
   }
 }
+
+//Key Management Service - Secondary region
+resource "aws_kms_key" "dr" {
+  provider                = aws.dr
+  description             = "Llave KMS en region secundaria para cifrar copias de AWS Backup"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+  tags = {
+    Name = "${var.project_name}-kms-key-dr"
+  }
+}
+
+resource "aws_kms_alias" "dr" {
+  provider      = aws.dr
+  name          = "alias/${var.project_name}-kms-key-dr"
+  target_key_id = aws_kms_key.dr.key_id
+}
+
+//Key KMS 
+data "aws_iam_policy_document" "kms_key_policy" {
+  statement {
+    sid       = "AllowCloudFrontDecrypt"
+    actions   = ["kms:Decrypt", "kms:DescribeKey"]
+    resources = ["*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+  }
+}

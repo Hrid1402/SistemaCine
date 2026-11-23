@@ -2,6 +2,7 @@ import os
 import boto3
 import json
 import psycopg2
+import time
 
 def lambda_handler(event, context):
     secret_name = os.environ['DB_SECRET_NAME']
@@ -11,14 +12,28 @@ def lambda_handler(event, context):
     client = boto3.client('secretsmanager', region_name=region_name)
     secret = json.loads(client.get_secret_value(SecretId=secret_name)['SecretString'])
 
-    conn = psycopg2.connect(
-        host=secret['host'],
-        database=secret['dbname'],
-        user=secret['username'],
-        password=secret['password'],
-        port=secret.get('port', 5432),
-        connect_timeout=10
-    )
+    db_host = os.environ.get('DB_DIRECT_HOST') or secret.get('host')
+
+    conn = None
+    for attempt in range(6):
+        try:
+            print(f"Intento de conexion {attempt + 1}/6 a {db_host}...")
+            conn = psycopg2.connect(
+                host=db_host,
+                database=secret['dbname'],
+                user=secret['username'],
+                password=secret['password'],
+                port=secret.get('port', 5432),
+                connect_timeout=5
+            )
+            print("Conexion establecida con exito.")
+            break
+        except Exception as e:
+            print(f"Intento {attempt + 1} fallo: {e}")
+            if attempt == 5:
+                raise e
+            time.sleep(5)
+
     cursor = conn.cursor()
 
     # Crea tablas y asegura columnas para sala, precio y cantidad de asientos

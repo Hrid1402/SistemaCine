@@ -20,12 +20,19 @@ resource "aws_lambda_function" "init_db" {
   runtime          = "python3.11"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   layers           = [aws_lambda_layer_version.psycopg2_layer.arn]
-  timeout          = 30
+  timeout          = 60
   memory_size      = 256
+
+  # Integración con la Red Privada (VPC)
+  vpc_config {
+    subnet_ids         = [aws_subnet.privada_az1.id, aws_subnet.privada_az2.id]
+    security_group_ids = [aws_security_group.lambda_vpc_sg.id]
+  }
 
   environment {
     variables = {
       DB_SECRET_NAME = aws_secretsmanager_secret.db_secret.name
+      DB_DIRECT_HOST = aws_db_instance.postgres.address
     }
   }
 }
@@ -42,6 +49,8 @@ resource "aws_lambda_invocation" "init_db" {
   depends_on = [
     aws_lambda_function.init_db,
     aws_db_instance.postgres,
+    aws_db_proxy.postgres_proxy,
+    aws_db_proxy_target.proxy_target,
     aws_secretsmanager_secret_version.db_secret_val
   ]
 }
@@ -57,11 +66,19 @@ resource "aws_lambda_function" "get_billboard" {
   timeout          = 15
   memory_size      = 256
 
+  # Integración con la Red Privada (VPC)
+  vpc_config {
+    subnet_ids         = [aws_subnet.privada_az1.id, aws_subnet.privada_az2.id]
+    security_group_ids = [aws_security_group.lambda_vpc_sg.id]
+  }
+
   environment {
     variables = {
       DB_SECRET_NAME      = aws_secretsmanager_secret.db_secret.name
+      DB_HOST             = aws_db_proxy.postgres_proxy.endpoint
       S3_BUCKET_NAME      = aws_s3_bucket.posters.id
       DYNAMODB_TABLE_NAME = aws_dynamodb_table.seats.name
+      CLOUDFRONT_DOMAIN   = aws_cloudfront_distribution.cine_cdn.domain_name
     }
   }
 }
@@ -81,6 +98,7 @@ resource "aws_lambda_function" "book_seat" {
     variables = {
       DYNAMODB_TABLE_NAME = aws_dynamodb_table.seats.name
       DB_SECRET_NAME      = aws_secretsmanager_secret.db_secret.name
+      SQS_QUEUE_URL       = aws_sqs_queue.compras.id
     }
   }
 }
@@ -96,15 +114,23 @@ resource "aws_lambda_function" "process_payment" {
   timeout          = 15
   memory_size      = 256
 
+  # Integración con la Red Privada (VPC)
+  vpc_config {
+    subnet_ids         = [aws_subnet.privada_az1.id, aws_subnet.privada_az2.id]
+    security_group_ids = [aws_security_group.lambda_vpc_sg.id]
+  }
+
   environment {
     variables = {
       DB_SECRET_NAME      = aws_secretsmanager_secret.db_secret.name
+      DB_HOST             = aws_db_proxy.postgres_proxy.endpoint
       DYNAMODB_TABLE_NAME = aws_dynamodb_table.seats.name
+      SNS_TOPIC_ARN       = aws_sns_topic.alertas.arn
     }
   }
 }
 
-# --- NUEVO: Función Lambda para Administración (manage_admin) ---
+# Función Lambda para Administración (manage_admin)
 resource "aws_lambda_function" "manage_admin" {
   filename         = data.archive_file.lambda_zip.output_path
   function_name    = "cine-manage-admin"
@@ -116,9 +142,23 @@ resource "aws_lambda_function" "manage_admin" {
   timeout          = 15
   memory_size      = 256
 
+  # Integración con la Red Privada (VPC)
+  vpc_config {
+    subnet_ids         = [aws_subnet.privada_az1.id, aws_subnet.privada_az2.id]
+    security_group_ids = [aws_security_group.lambda_vpc_sg.id]
+  }
+
   environment {
     variables = {
       DB_SECRET_NAME = aws_secretsmanager_secret.db_secret.name
+      DB_HOST        = aws_db_proxy.postgres_proxy.endpoint
     }
   }
+}
+
+resource "aws_lambda_event_source_mapping" "sqs_compras_to_payment" {
+  event_source_arn = aws_sqs_queue.compras.arn
+  function_name    = aws_lambda_function.process_payment.arn
+  batch_size       = 10
+  enabled          = true
 }

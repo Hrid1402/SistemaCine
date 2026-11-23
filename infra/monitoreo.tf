@@ -20,16 +20,17 @@ resource "aws_cloudwatch_log_group" "init_db" {
 
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   alarm_name          = "${var.project_name}-lambda-errors"
-  alarm_description   = "Errores acumulados en las Lambdas de cartelera, reserva y pago"
+  alarm_description   = "Errores acumulados en las Lambdas de cartelera, reserva, pago y administración"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 1
   threshold           = 1
   treat_missing_data  = "notBreaching"
+  alarm_actions       = [aws_sns_topic.alertas.arn]
 
   metric_query {
     id          = "total"
     expression  = "SUM(METRICS())"
-    label       = "Errores totales de las 3 Lambdas"
+    label       = "Errores totales de las Lambdas"
     return_data = true
   }
 
@@ -71,6 +72,20 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
       stat        = "Sum"
       dimensions = {
         FunctionName = aws_lambda_function.process_payment.function_name
+      }
+    }
+  }
+
+  metric_query {
+    id          = "admin"
+    return_data = false
+    metric {
+      metric_name = "Errors"
+      namespace   = "AWS/Lambda"
+      period      = 300
+      stat        = "Sum"
+      dimensions = {
+        FunctionName = aws_lambda_function.manage_admin.function_name
       }
     }
   }
@@ -143,4 +158,91 @@ output "cognito_app_client_id" {
 output "cognito_region" {
   description = "Region del User Pool de Cognito"
   value       = var.aws_region
+}
+resource "aws_sqs_queue" "dlq" {
+  name                      = "${var.project_name}-cola-errores"
+  message_retention_seconds = 1209600 # 14 days
+  kms_master_key_id         = aws_kms_key.main.key_id
+  tags = {
+    Name = "${var.project_name}-cola-errores"
+  }
+}
+
+resource "aws_sqs_queue" "compras" {
+  name                       = "${var.project_name}-cola-compras"
+  visibility_timeout_seconds = 30
+  message_retention_seconds  = 86400 # 1 day
+  kms_master_key_id          = aws_kms_key.main.key_id
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.dlq.arn
+    maxReceiveCount     = 3
+  })
+  tags = {
+    Name = "${var.project_name}-cola-compras"
+  }
+}
+
+//SNS
+resource "aws_sns_topic" "alertas" {
+  name              = "${var.project_name}-alertas-sns"
+  kms_master_key_id = aws_kms_key.main.key_id
+  tags = {
+    Name = "${var.project_name}-alertas-sns"
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "dlq_messages_alarm" {
+  alarm_name          = "${var.project_name}-dlq-errors-alarm"
+  alarm_description   = "Alerta inmediata cuando un pago falla sus 3 intentos e ingresa a la Cola de errores"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  namespace           = "AWS/SQS"
+  period              = 60
+  statistic           = "Sum"
+  threshold           = 1
+  treat_missing_data  = "notBreaching"
+
+
+  dimensions = {
+    QueueName = aws_sqs_queue.dlq.name
+  }
+
+  alarm_actions = [aws_sns_topic.alertas.arn]
+}
+
+resource "aws_cloudwatch_log_group" "admin" {
+  name              = "/aws/lambda/${aws_lambda_function.manage_admin.function_name}"
+  retention_in_days = 365
+}
+
+
+output "sqs_compras_url" {
+  description = "URL de la Cola de compras en SQS"
+  value       = aws_sqs_queue.compras.id
+}
+
+output "sqs_errores_dlq_url" {
+  description = "URL de la Cola de errores (DLQ) en SQS"
+  value       = aws_sqs_queue.dlq.id
+}
+
+output "sns_topic_arn" {
+  description = "ARN del topico SNS de alertas y confirmaciones"
+  value       = aws_sns_topic.alertas.arn
+}
+
+output "cloudfront_url" {
+  description = "Dominio publico de CloundFront"
+  value       = aws_cloudfront_distribution.cine_cdn.domain_name
+}
+
+output "aws_route53_zone_id" {
+  description = "ID de la zona alojada en Route53"
+  value       = aws_route53_zone.main.zone_id
+}
+
+output "acm_certificate_arn" {
+  description = "ARN del certificado SSL en ACM"
+  value       = aws_acm_certificate.cert.arn
 }
